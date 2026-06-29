@@ -13,12 +13,10 @@ class RetrievalService:
 
     def retrieve(self, question: str, top_k: int = 5):
 
-        question_embedding = self.embedding_service.generate_embedding(
-            question
-        )
+        query_embedding = self.embedding_service.generate_embedding(question)
 
         results = self.chroma_service.search(
-            embedding=question_embedding,
+            embedding=query_embedding,
             top_k=top_k,
         )
 

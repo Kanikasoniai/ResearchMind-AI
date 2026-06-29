@@ -1,16 +1,17 @@
-from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
-class Settings(BaseSettings):
-    app_name: str = "ResearchMind AI"
-    app_version: str = "1.0.0"
-    debug: bool = True
-    host: str = "127.0.0.1"
-    port: int = 8000
-    api_prefix: str = "/api/v1"
+class Settings:
+    app_name = "ResearchMind AI"
 
-    class Config:
-        env_file = ".env"
+    app_version = "1.0.0"
+
+    api_prefix = "/api/v1"
+
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 
 settings = Settings()

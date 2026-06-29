@@ -4,20 +4,27 @@ from app.rag.retrieval_service import RetrievalService
 from app.services.llm.gemini_service import GeminiService
 
 
-class ChatService:
+class AIEngine:
     """
-    Coordinates the complete RAG pipeline.
+    Central AI Engine responsible for Retrieval-Augmented Generation.
+    Every AI feature in ResearchMind AI uses this engine.
     """
 
     def __init__(self):
-
         self.retriever = RetrievalService()
-
         self.gemini = GeminiService()
 
-    def ask(self, question: str):
+    def generate(
+        self,
+        instruction: str,
+        question: str,
+        top_k: int = 5,
+    ):
 
-        retrieval = self.retriever.retrieve(question)
+        retrieval = self.retriever.retrieve(
+            question,
+            top_k=top_k,
+        )
 
         ranked = ContextRanker.rank(retrieval)
 
@@ -25,19 +32,19 @@ class ChatService:
             ranked["documents"]
         )
 
-        prompt = PromptBuilder.build_prompt(
-            question=question,
-            context=context,
-        )
+        prompt = f"""
+{instruction}
+
+{PromptBuilder.build_prompt(
+    question=question,
+    context=context,
+)}
+"""
 
         answer = self.gemini.generate_answer(prompt)
 
         return {
-            "success": True,
             "answer": answer,
             "sources": ranked["metadatas"],
-            "retrieved_chunks": len(
-                ranked["documents"]
-            ),
-            "model": "gemini-2.5-flash",
+            "retrieved_chunks": len(ranked["documents"]),
         }
